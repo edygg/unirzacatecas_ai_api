@@ -1,0 +1,7 @@
+# PostgreSQL
+# ------------------------------------------------------------------------------
+POSTGRES_HOST=postgres
+POSTGRES_PORT=5432
+POSTGRES_DB=unirzacatecas_ai_api
+POSTGRES_USER=sTfzjaTdutnUbeRzGkUCLXEjAGhzrngw
+POSTGRES_PASSWORD=WHMmJLFAMMjzTVm8Mc8VLfnosK1wQDadxwcq7HSrUFfwqwam5Ci7oU5ztOY0NoGH
