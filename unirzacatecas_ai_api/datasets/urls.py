@@ -3,6 +3,5 @@ from . import views
 
 app_name = "datasets"
 urlpatterns = [
-    # path("~redirect/", view=user_redirect_view, name="redirect"),
-    # path("")
+    path("", view=views.DatasetAPIView.as_view(), name="datasets"),
 ]
