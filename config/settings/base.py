@@ -72,11 +72,13 @@ THIRD_PARTY_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "corsheaders",
+    "jsoneditor",
 ]
 
 LOCAL_APPS = [
     "unirzacatecas_ai_api.users.apps.UsersConfig",
-    "unirzacatecas_ai_api.datasets.apps.DatasetsConfig"
+    "unirzacatecas_ai_api.datasets.apps.DatasetsConfig",
+    "unirzacatecas_ai_api.ml.apps.MlConfig",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -308,3 +310,5 @@ REST_FRAMEWORK = {
 CORS_URLS_REGEX = r"^/api/.*$"
 # Your stuff...
 # ------------------------------------------------------------------------------
+JSON_EDITOR_JS = 'https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/8.6.4/jsoneditor.js'
+JSON_EDITOR_CSS = 'https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/8.6.4/jsoneditor.css'
