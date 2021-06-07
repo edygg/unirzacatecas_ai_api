@@ -13,6 +13,7 @@ urlpatterns = [
     path(settings.ADMIN_URL, admin.site.urls),
     # Local apps
     path("datasets/", include("unirzacatecas_ai_api.datasets.urls"), name="datasets"),
+    path("ml/", include("unirzacatecas_ai_api.ml.urls"), name="ml"),
     # User management
     # path("users/", include("unirzacatecas_ai_api.users.urls", namespace="users")),
     # Your stuff: custom urls includes go here
