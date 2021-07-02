@@ -20,7 +20,6 @@ class DatasetModel(core_models.Auditable):
 
         column_types_json = [dict(name=k, type=type_mapper(str(v))) for k, v in column_types.items()]
 
-
         return dict(
             id=self.id,
             original_csv_file=self.original_csv_file.url if self.original_csv_file else None,
