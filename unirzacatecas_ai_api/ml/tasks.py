@@ -6,6 +6,8 @@ import random
 from . import utils
 from . import models
 
+from . import metrics
+
 """
 packet = dict(
     dataset_id=3,
@@ -89,16 +91,25 @@ def decision_tree_regressor(packet):
         }
     """
     from sklearn.tree import DecisionTreeRegressor
-    from sklearn.model_selection import GridSearchCV, train_test_split
+    from sklearn.model_selection import GridSearchCV
+
+    training_run = models.TrainingRun.objects.create(email=packet["email"], result=dict(content=""))
+    print(f"Training Run: {training_run.id}")
 
     if not utils.validate_packet(packet):
-        print("Error en el paquete")
+        training_run.has_error = True
+        training_run.errors = "Paquete mal formado, contacte al administrador del sistema"
+        training_run.status = models.TrainingRun.STATUS_WITH_ERRORS
+        training_run.save()
         return
 
     dataset = utils.get_dataset(packet)
 
     if not dataset:
-        print("No se encontró el dataset")
+        training_run.has_error = True
+        training_run.errors = "No se encontró el dataset, contacte al administrador del sistema"
+        training_run.status = models.TrainingRun.STATUS_WITH_ERRORS
+        training_run.save()
         return
 
     x_train, x_test, y_train, y_test = decision_tree_common(packet, dataset)
@@ -111,21 +122,30 @@ def decision_tree_regressor(packet):
     except models.Algorithm.DoesNotExist:
         algorithm_settings = {'max_depth':np.arange(1,50,2),'min_samples_leaf':np.arange(2,15)}
 
-    training_regressor = DecisionTreeRegressor(random_state=1)
-    training_regressor_params = algorithm_settings
-    gs_training_regressor = GridSearchCV(
-        training_regressor,
-        training_regressor_params,
-        cv=3
-    )
+    try:
+        training_regressor = DecisionTreeRegressor(random_state=1)
+        training_regressor_params = algorithm_settings
+        gs_training_regressor = GridSearchCV(
+            training_regressor,
+            training_regressor_params,
+            cv=3
+        )
 
-    gs_training_regressor.fit(x_train,y_train)
-    a = gs_training_regressor.best_params_
-    print(a)
-    training_regressor.fit(x_train, y_train)
+        gs_training_regressor.fit(x_train,y_train)
+        a = gs_training_regressor.best_params_
+        training_regressor.fit(x_train, y_train)
 
-    predictions = gs_training_regressor.predict(x_test)
-    print(predictions)
+        predictions = gs_training_regressor.predict(x_test)
+
+        report_html = metrics.regression_metrics(y_test, predictions)
+        training_run.result = dict(content=str(report_html))
+        training_run.status = training_run.STATUS_FINISHED
+        training_run.save()
+    except Exception as error:
+        training_run.result = dict(content=str())
+        training_run.status = training_run.STATUS_WITH_ERRORS
+        training_run.errors = str(error)
+        training_run.save()
 
 
 @celery_app.task(soft_time_limit=600, time_limit=700)
@@ -138,14 +158,23 @@ def neural_network_regressor(packet):
     RANDOM_INT = 1  # random seed for the dataset
     PERFORMANCE_JOBS = -1  # -1 means using all processors
 
+    training_run = models.TrainingRun.objects.create(email=packet["email"])
+    print(f"Training Run: {training_run.id}")
+
     if not utils.validate_packet(packet):
-        print("Error en el paquete")
+        training_run.has_error = True
+        training_run.errors = "Paquete mal formado, contacte al administrador del sistema"
+        training_run.status = models.TrainingRun.STATUS_WITH_ERRORS
+        training_run.save()
         return
 
     dataset = utils.get_dataset(packet)
 
     if not dataset:
-        print("No se encontró el dataset")
+        training_run.has_error = True
+        training_run.errors = "No se encontró el dataset, contacte al administrador del sistema"
+        training_run.status = models.TrainingRun.STATUS_WITH_ERRORS
+        training_run.save()
         return
 
     try:
@@ -239,16 +268,25 @@ def decision_tree_classifier(packet):
         }
     """
     from sklearn.tree import DecisionTreeClassifier
-    from sklearn.model_selection import GridSearchCV, train_test_split
+    from sklearn.model_selection import GridSearchCV
+
+    training_run = models.TrainingRun.objects.create(email=packet["email"])
+    print(f"Training Run: {training_run.id}")
 
     if not utils.validate_packet(packet):
-        print("Error en el paquete")
+        training_run.has_error = True
+        training_run.errors = "Paquete mal formado, contacte al administrador del sistema"
+        training_run.status = models.TrainingRun.STATUS_WITH_ERRORS
+        training_run.save()
         return
 
     dataset = utils.get_dataset(packet)
 
     if not dataset:
-        print("No se encontró el dataset")
+        training_run.has_error = True
+        training_run.errors = "No se encontró el dataset, contacte al administrador del sistema"
+        training_run.status = models.TrainingRun.STATUS_WITH_ERRORS
+        training_run.save()
         return
 
     x_train, x_test, y_train, y_test = decision_tree_common(packet, dataset)
@@ -261,22 +299,26 @@ def decision_tree_classifier(packet):
     except models.Algorithm.DoesNotExist:
         algorithm_settings = {'max_depth':np.arange(1,50,2),'min_samples_leaf':np.arange(2,15)}
 
+    try:
+        training_classifier = DecisionTreeClassifier()
+        training_classifier_params = algorithm_settings
+        gs_training_classifier = GridSearchCV(
+            training_classifier,
+            training_classifier_params,
+            cv=3
+        )
 
-    training_classifier = DecisionTreeClassifier()
-    training_classifier_params = algorithm_settings
-    gs_training_classifier = GridSearchCV(
-        training_classifier,
-        training_classifier_params,
-        cv=3
-    )
+        gs_training_classifier.fit(x_train,y_train)
+        a = gs_training_classifier.best_params_
+        training_classifier.fit(x_train, y_train)
 
-    gs_training_classifier.fit(x_train,y_train)
-    a = gs_training_classifier.best_params_
-    print(a)
-    training_classifier.fit(x_train, y_train)
+        predictions = training_classifier.predict(x_test)
 
-    predictions = training_classifier.predict(x_test)
-    print(predictions)
+    except Exception as error:
+        training_run.result = dict(content=str())
+        training_run.status = training_run.STATUS_WITH_ERRORS
+        training_run.errors = str(error)
+        training_run.save()
 
 
 @celery_app.task(soft_time_limit=600, time_limit=700)
@@ -290,14 +332,23 @@ def neural_network_classifier(packet):
     RANDOM_INT = 1  # random seed for the dataset
     PERFORMANCE_JOBS = -1  # -1 means using all processors
 
+    training_run = models.TrainingRun.objects.create(email=packet["email"])
+    print(f"Training Run: {training_run.id}")
+
     if not utils.validate_packet(packet):
-        print("Error en el paquete")
+        training_run.has_error = True
+        training_run.errors = "Paquete mal formado, contacte al administrador del sistema"
+        training_run.status = models.TrainingRun.STATUS_WITH_ERRORS
+        training_run.save()
         return
 
     dataset = utils.get_dataset(packet)
 
     if not dataset:
-        print("No se encontró el dataset")
+        training_run.has_error = True
+        training_run.errors = "No se encontró el dataset, contacte al administrador del sistema"
+        training_run.status = models.TrainingRun.STATUS_WITH_ERRORS
+        training_run.save()
         return
 
     try:

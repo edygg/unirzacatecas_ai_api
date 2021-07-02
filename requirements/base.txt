@@ -25,5 +25,9 @@ django-jsoneditor==0.1.6  # https://pypi.org/project/django-jsoneditor/
 
 # Machine Learning
 # ------------------------------------------------------------------------------
+numpy==1.21.0  # https://pypi.org/project/numpy/
 pandas==1.2.4  # https://pypi.org/project/pandas/
 scikit-learn==0.24.1  # https://pypi.org/project/scikit-learn/
+matplotlib==3.4.2  # https://pypi.org/project/matplotlib/
+seaborn==0.11.1  # https://pypi.org/project/seaborn/
+dominate==2.6.0  # https://pypi.org/project/dominate/
