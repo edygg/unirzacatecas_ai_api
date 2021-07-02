@@ -75,11 +75,11 @@ def algorithm_selector(algorithm_type, algorithm):
         if algorithm == ml_models.Algorithm.DECISION_TREE:
             return ml_tasks.decision_tree_classifier
         elif algorithm == ml_models.Algorithm.NEURAL_NETWORKS:
-            return ""
+            return ml_tasks.neural_network_classifier
     elif algorithm_type == ml_models.Algorithm.REGRESSOR:
         if algorithm == ml_models.Algorithm.DECISION_TREE:
             return ml_tasks.decision_tree_regressor
         elif algorithm == ml_models.Algorithm.NEURAL_NETWORKS:
-            return ""
+            return ml_tasks.neural_network_regressor
 
 
