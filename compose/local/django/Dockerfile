@@ -11,6 +11,8 @@ RUN apt-get update \
   # Translations dependencies
   && apt-get install -y gettext \
   # cleaning up unused files
+  && apt-get install -y wkhtmltopdf \
+
   && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
   && rm -rf /var/lib/apt/lists/*
 

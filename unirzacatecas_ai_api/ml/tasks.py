@@ -2,6 +2,8 @@ from config import celery_app
 import pandas as pd
 import numpy as np
 import random
+import pdfkit
+from django.conf import settings
 
 from . import utils
 from . import models
@@ -138,9 +140,28 @@ def decision_tree_regressor(packet):
         predictions = gs_training_regressor.predict(x_test)
 
         report_html = metrics.regression_metrics(y_test, predictions)
+        print(report_html)
         training_run.result = dict(content=str(report_html))
         training_run.status = training_run.STATUS_FINISHED
         training_run.save()
+
+        options = {
+            'dpi': '300',
+            'page-size': 'A4',
+            'margin-top': '45mm',
+            'margin-right': '25mm',
+            'margin-bottom': '25mm',
+            'margin-left': '25mm',
+            'encoding': "UTF-8",
+            'no-outline': None,
+            'header-html': 'https://marian-testing2.glitch.me/header.html',
+            'footer-right': 'Página [page] de [topage]',
+            'header-spacing': '6',
+            'footer-spacing': '4'
+        }
+
+        pdfkit.from_string(str(report_html), f'{settings.MEDIA_ROOT}/execution-{training_run.id}.pdf', options=options)
+
     except Exception as error:
         training_run.result = dict(content=str())
         training_run.status = training_run.STATUS_WITH_ERRORS

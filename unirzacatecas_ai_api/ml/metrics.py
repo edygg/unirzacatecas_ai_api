@@ -125,8 +125,8 @@ def classification_metrics(algorithm_type, categories, y_test, predictions, grid
     df_classification_report.rename({'index': 'Categorias', }, axis='columns', inplace=True)
     html_txt_report = df_classification_report.to_html(index=False)
 
-    TITLE_BEST_PARAMS = 'Mejores parámetros'
-    TITLE_REPORT = 'Reporte de clasificación'
+    TITLE_BEST_PARAMS = 'Mejores parametros'
+    TITLE_REPORT = 'Reporte de clasificacion'
 
     # Recorrer para cada algoritmos
     path_matrix_img = "https://cdn.glitch.com/770c74ae-47b2-42d3-81b0-64d130c4d2f6%2F453453453_matriz_conf.png?v=1623972060069"  # Dinamico
@@ -140,17 +140,17 @@ def classification_metrics(algorithm_type, categories, y_test, predictions, grid
 
 
 def regression_metrics(real, predicted):
-    TITLE_REPORT = 'Métricas de regresión'
+    TITLE_REPORT = 'Metricas de regresion'
 
     mean_squared_error = metrics.mean_squared_error(real, predicted)
 
-    ME = "Error Máximo: {:.2f}".format(metrics.max_error(real, predicted))
+    ME = "Error Maximo: {:.2f}".format(metrics.max_error(real, predicted))
     MAE = "Error Absoluto Medio (MAE): {:.2f}".format(metrics.mean_absolute_error(real, predicted))
-    MSE = "Error Cuadrático Medio (MSE): {:.2f}".format(mean_squared_error)
-    RMSE = "Raíz del Error Cuadrático Medio (RMSE): {:.2f}".format(mean_squared_error ** 0.5)
-    RMLSE = "Logaritmo de la Raíz del Error Cuadrático Medio (RMLSE): {:.4f}".format(
+    MSE = "Error Cuadratico Medio (MSE): {:.2f}".format(mean_squared_error)
+    RMSE = "Raiz del Error Cuadratico Medio (RMSE): {:.2f}".format(mean_squared_error ** 0.5)
+    RMLSE = "Logaritmo de la Raiz del Error Cuadratico Medio (RMLSE): {:.4f}".format(
         metrics.mean_squared_log_error(real, predicted))
-    R2 = "Coeficiente de Determinación R2 (r2 score): {:.4f}".format(metrics.r2_score(real, predicted))
+    R2 = "Coeficiente de Determinacion R2 (r2 score): {:.4f}".format(metrics.r2_score(real, predicted))
 
     html_txt_title_met = section(p(h3(TITLE_REPORT)))
     html_txt_met = section(p(R2), p(MAE), p(MSE), p(RMSE), p(RMLSE), p(ME))
