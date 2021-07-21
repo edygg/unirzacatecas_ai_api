@@ -2,13 +2,12 @@ from config import celery_app
 import pandas as pd
 import numpy as np
 import random
-import pdfkit
 from django.conf import settings
 
 from . import utils
 from . import models
-
 from . import metrics
+from . import docs
 
 """
 packet = dict(
@@ -95,12 +94,13 @@ def decision_tree_regressor(packet):
     from sklearn.tree import DecisionTreeRegressor
     from sklearn.model_selection import GridSearchCV
 
-    training_run = models.TrainingRun.objects.create(email=packet["email"], result=dict(content=""))
+    training_run = models.TrainingRun.objects.create(email=packet["email"])
     print(f"Training Run: {training_run.id}")
 
     if not utils.validate_packet(packet):
         training_run.has_error = True
         training_run.errors = "Paquete mal formado, contacte al administrador del sistema"
+        # training_run.result = dict(content=training_run.errors)
         training_run.status = models.TrainingRun.STATUS_WITH_ERRORS
         training_run.save()
         return
@@ -110,6 +110,7 @@ def decision_tree_regressor(packet):
     if not dataset:
         training_run.has_error = True
         training_run.errors = "No se encontró el dataset, contacte al administrador del sistema"
+        # training_run.result = dict(content=training_run.errors)
         training_run.status = models.TrainingRun.STATUS_WITH_ERRORS
         training_run.save()
         return
@@ -141,29 +142,16 @@ def decision_tree_regressor(packet):
 
         report_html = metrics.regression_metrics(y_test, predictions)
         print(report_html)
-        training_run.result = dict(content=str(report_html))
+        # training_run.result = dict(content=str(report_html))
         training_run.status = training_run.STATUS_FINISHED
         training_run.save()
 
-        options = {
-            'dpi': '300',
-            'page-size': 'A4',
-            'margin-top': '45mm',
-            'margin-right': '25mm',
-            'margin-bottom': '25mm',
-            'margin-left': '25mm',
-            'encoding': "UTF-8",
-            'no-outline': None,
-            'header-html': 'https://marian-testing2.glitch.me/header.html',
-            'footer-right': 'Página [page] de [topage]',
-            'header-spacing': '6',
-            'footer-spacing': '4'
-        }
-
-        pdfkit.from_string(str(report_html), f'{settings.MEDIA_ROOT}/execution-{training_run.id}.pdf', options=options)
+        docs.generate_pdf_report(report_html, training_run)
 
     except Exception as error:
-        training_run.result = dict(content=str())
+       # training_run.result = dict(content=str(error))
+        print("Lancé una excepción")
+        print(error)
         training_run.status = training_run.STATUS_WITH_ERRORS
         training_run.errors = str(error)
         training_run.save()

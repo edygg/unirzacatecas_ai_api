@@ -67,4 +67,4 @@ class TrainingRun(core_models.Auditable):
     has_error = models.BooleanField(default=False)
     errors = models.TextField()
     status = models.CharField(max_length=100, choices=STATUS_CHOICES, default=STATUS_STARTED)
-    result = pg_fields.JSONField()
+    # result = pg_fields.JSONField()
